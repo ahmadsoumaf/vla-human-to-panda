@@ -478,49 +478,9 @@ Closed-Loop Robot Policy
 Evaluation on Unseen Tasks
 ```
 
----
-
-## Technologies
-
-**Programming**
-
-- Python
-- Bash
-
-**Perception**
-
-- OpenCV
-- MediaPipe
-
-**Robotics & Simulation**
-
-- NVIDIA Isaac Sim
-- OpenUSD
-- Franka Panda
-- inverse kinematics
-
-**Robot Learning**
-
-- Hugging Face LeRobot
-- SmolVLA
-- PyTorch
-- CUDA
-
-**Data**
-
-- NumPy
-- LeRobot dataset format
-- RGB robot-camera observations
-- joint-state/action trajectories
-
----
 
 ## Challenge Summary
 
 This project demonstrates how a small amount of applicant-recorded real-world manipulation data can be transformed into robot-learning demonstrations for a different embodiment.
 
-The central idea is:
 
-> **record a human manipulation with a phone, understand the manipulation, retarget it to a simulated robot, and convert the resulting robot behaviour into data suitable for Vision-Language-Action learning.**
-
-The current system successfully completes the complete real-to-sim and dataset-generation pipeline, with closed-loop VLA evaluation as the next stage.
