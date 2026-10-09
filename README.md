@@ -1,5 +1,6 @@
 ### Real-to-Simulation Robot Manipulation
 
+<img width="960" height="270" alt="real_vs_isaac_sim" src="https://github.com/user-attachments/assets/44e93ace-ddba-472b-8b7b-ae117fbd7f55" />
 
 
 ![NVIDIA Isaac Sim](https://img.shields.io/badge/NVIDIA-Isaac%20Sim-76B900?logo=nvidia&logoColor=white)
@@ -8,7 +9,6 @@
 ![OpenUSD](https://img.shields.io/badge/OpenUSD-Simulation-lightgrey)
 
 
-https://github.com/user-attachments/assets/dd9f8bdb-5585-4d3d-b472-d944e52a4d91
 
 
 A real-to-simulation robot learning pipeline that converts simple phone-recorded human manipulation demonstrations into Panda robot demonstrations in NVIDIA Isaac Sim and exports them as a LeRobot dataset for Vision-Language-Action training.
