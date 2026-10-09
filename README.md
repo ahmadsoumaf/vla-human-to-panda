@@ -181,24 +181,22 @@ Replace `$HOME/IsaacSim-5.1` with your Isaac Sim installation directory.
 
 Process a phone video:
 
+### Demo 001
+
 ```bash
-./run_process_demo.sh data/real/videos/demo_001_best.mp4
+./run_process_demo.sh data/real/videos/demo_001_best.mp4 --target-mode release
+./run_human_replay.sh data/real/processed/demo_001_best.npz
 ```
-
-This performs:
-
-```text
-video
-→ hand tracking
-→ object tracking
-→ phase detection
-→ grasp/release detection
-→ validation
-→ processed demonstration
+### Demo 002
+```bash
+./run_process_demo.sh data/real/videos/demo_002.mp4 --target-mode release
+./run_human_replay.sh data/real/processed/demo_002.npz
 ```
-
----
-
+### Demo 004
+```bash
+./run_process_demo.sh data/real/videos/demo_004.mp4 --target-mode release
+./run_human_replay.sh data/real/processed/demo_004.npz
+```
 ## Replay Human Motion with Panda
 
 After processing:
