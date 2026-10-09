@@ -2,12 +2,10 @@
 
 ![Python](https://img.shields.io/badge/Python-3.x-blue?logo=python&logoColor=white)
 ![NVIDIA Isaac Sim](https://img.shields.io/badge/NVIDIA-Isaac%20Sim-76B900?logo=nvidia&logoColor=white)
-![PyTorch](https://img.shields.io/badge/PyTorch-CUDA-ee4c2c?logo=pytorch&logoColor=white)
 ![OpenCV](https://img.shields.io/badge/OpenCV-Perception-5C3EE8?logo=opencv&logoColor=white)
-![LeRobot](https://img.shields.io/badge/Hugging%20Face-LeRobot-FFD21E)
 ![SmolVLA](https://img.shields.io/badge/VLA-SmolVLA-orange)
 ![OpenUSD](https://img.shields.io/badge/OpenUSD-Simulation-lightgrey)
-![Bash](https://img.shields.io/badge/Bash-Scripts-4EAA25?logo=gnubash&logoColor=white)
+
 
 A real-to-simulation robot learning pipeline that converts simple phone-recorded human manipulation demonstrations into Panda robot demonstrations in NVIDIA Isaac Sim and exports them as a LeRobot dataset for Vision-Language-Action training.
 
