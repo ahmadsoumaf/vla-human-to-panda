@@ -278,29 +278,6 @@ A larger and more spatially diverse dataset is required for strong generalisatio
 
 ---
 
-## Pipeline Freeze
-
-To ensure that dataset generation remains reproducible, the final perception, retargeting and controller pipeline is fingerprinted using SHA-256 hashes.
-
-Check that the frozen pipeline has not changed:
-
-```bash
-python3 tools/freeze_manifest.py --check
-```
-
-If one of the frozen files changes, the check fails.
-
----
-
-## Tests
-
-Run the validation tests with:
-
-```bash
-python3 -m pytest tests/ -q
-```
----
-
 ## Dataset Export
 
 Accepted demonstrations are replayed in Isaac Sim while recording:
