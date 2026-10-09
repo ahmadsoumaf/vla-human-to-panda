@@ -1,5 +1,6 @@
-# Real-to-Sim VLA Manipulation with Human Demonstrations
+### Real-to-Simulation Robot Manipulation
 
+https://github.com/ahmadsoumaf/vla_challenge/blob/main/real_vs_isaac_sim_github.mp4
 
 ![NVIDIA Isaac Sim](https://img.shields.io/badge/NVIDIA-Isaac%20Sim-76B900?logo=nvidia&logoColor=white)
 ![OpenCV](https://img.shields.io/badge/OpenCV-Perception-5C3EE8?logo=opencv&logoColor=white)
