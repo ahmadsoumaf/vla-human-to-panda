@@ -202,8 +202,9 @@ Process a phone video:
 After processing:
 
 ```bash
-./run_human_replay.sh demo_001_best
+./run_human_replay.sh data/real/processed/demo_001_best.npz
 ```
+
 
 The system retargets the accepted human trajectory and executes it with the Panda.
 
@@ -213,6 +214,10 @@ The resulting report records whether the demonstration is suitable for the VLA d
 
 ## Record Accepted Robot Episodes
 
+First verify the frozen pipeline:
+
+```bash
+python3 tools/freeze_manifest.py --check
 ```bash
 ./run_record_episodes.sh
 ```
