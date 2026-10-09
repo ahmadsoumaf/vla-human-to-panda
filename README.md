@@ -100,15 +100,6 @@ The 8-D state contains:
 +
 gripper opening
 ```
-
-The 8-D action contains:
-
-```text
-7 commanded joint targets
-+
-gripper command
-```
-
 ---
 
 ## Perception
@@ -121,33 +112,6 @@ The phone-video processing pipeline uses:
 - phase-aware validation
 - grasp/release detection
 - post-release target estimation
-
-The manipulation is separated into:
-
-```text
-Approach
-   ↓
-Grasp
-   ↓
-Carry
-   ↓
-Release
-   ↓
-Post-release
-```
-
-Validation is also phase-aware.
-
-For example:
-
-- the hand must be visible at the grasp;
-- the object must be observed before the grasp;
-- either the hand or object must remain tracked during carry;
-- the object must reappear after release;
-- enough stable object frames must exist after placement.
-
-A demonstration can therefore replay successfully but still be rejected from the training dataset if its human manipulation was not reliably observed.
-
 ---
 
 ## Human-to-Panda Retargeting
@@ -177,88 +141,6 @@ The Panda controller handles:
 - grasp validation;
 - placement success checking;
 - trajectory execution logging.
-
----
-
-
-## Dataset Export
-
-Accepted demonstrations are replayed in Isaac Sim while recording:
-
-```text
-observation.images.front
-observation.state
-action
-task
-```
-
-They are then exported into LeRobot v3.0 format.
-
-The final dataset is located at:
-
-```text
-data/lerobot/fls_panda_pick_place/
-```
-
----
-
-## Repository Structure
-
-```text
-vla_challenge/
-│
-├── README.md
-├── FROZEN_PIPELINE.json
-│
-├── perception/
-│   ├── process_demo.py
-│   ├── hand_tracker.py
-│   ├── object_tracker.py
-│   ├── target_tracker.py
-│   ├── synthetic_demo.py
-│   └── default_config.json
-│
-├── retargeting/
-│   ├── human_to_panda.py
-│   └── replay_human_demo.py
-│
-├── isaac/
-│   ├── build_fls_pick_place_scene.py
-│   ├── panda_common.py
-│   ├── task_geometry.py
-│   ├── fls_pick_place_scene.usd
-│   └── fls_pick_place_scene.anchors.json
-│
-├── export/
-│   ├── record_sim_episodes.py
-│   └── build_lerobot_dataset.py
-│
-├── assets/
-│   ├── fls/
-│   └── models/
-│
-├── data/
-│   ├── real/
-│   │   ├── videos/
-│   │   └── processed/
-│   └── lerobot/
-│       └── fls_panda_pick_place/
-│
-├── tests/
-│   ├── test_phase_validation.py
-│   └── test_retargeting.py
-│
-├── tools/
-│   └── freeze_manifest.py
-│
-├── setup_perception_env.sh
-├── run_scene.sh
-├── run_process_demo.sh
-├── run_human_replay.sh
-├── run_record_episodes.sh
-├── run_build_lerobot_dataset.sh
-└── run_train_smolvla.sh
-```
 
 ---
 
@@ -403,17 +285,90 @@ Run the validation tests with:
 ```bash
 python3 -m pytest tests/ -q
 ```
+---
 
-The tests cover cases including:
+## Dataset Export
 
-- missing grasp observations;
-- carry tracking gaps;
-- invalid releases;
-- post-release stability;
-- demonstrations with incorrectly detected picks;
-- accepted demonstration quality.
+Accepted demonstrations are replayed in Isaac Sim while recording:
+
+```text
+observation.images.front
+observation.state
+action
+task
+```
+
+They are then exported into LeRobot v3.0 format.
+
+The final dataset is located at:
+
+```text
+data/lerobot/fls_panda_pick_place/
+```
 
 ---
+
+## Repository Structure
+
+```text
+vla_challenge/
+│
+├── README.md
+├── FROZEN_PIPELINE.json
+│
+├── perception/
+│   ├── process_demo.py
+│   ├── hand_tracker.py
+│   ├── object_tracker.py
+│   ├── target_tracker.py
+│   ├── synthetic_demo.py
+│   └── default_config.json
+│
+├── retargeting/
+│   ├── human_to_panda.py
+│   └── replay_human_demo.py
+│
+├── isaac/
+│   ├── build_fls_pick_place_scene.py
+│   ├── panda_common.py
+│   ├── task_geometry.py
+│   ├── fls_pick_place_scene.usd
+│   └── fls_pick_place_scene.anchors.json
+│
+├── export/
+│   ├── record_sim_episodes.py
+│   └── build_lerobot_dataset.py
+│
+├── assets/
+│   ├── fls/
+│   └── models/
+│
+├── data/
+│   ├── real/
+│   │   ├── videos/
+│   │   └── processed/
+│   └── lerobot/
+│       └── fls_panda_pick_place/
+│
+├── tests/
+│   ├── test_phase_validation.py
+│   └── test_retargeting.py
+│
+├── tools/
+│   └── freeze_manifest.py
+│
+├── setup_perception_env.sh
+├── run_scene.sh
+├── run_process_demo.sh
+├── run_human_replay.sh
+├── run_record_episodes.sh
+├── run_build_lerobot_dataset.sh
+└── run_train_smolvla.sh
+```
+
+---
+
+
 
 ## Current Limitations
 
