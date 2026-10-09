@@ -179,23 +179,6 @@ The Panda controller handles:
 
 ---
 
-## Simulation
-
-The simulation uses:
-
-- NVIDIA Isaac Sim
-- Franka Emika Panda
-- custom triangular manipulation object
-- table scene
-- RGB camera
-- physical grasping
-- collision and friction
-
-The Panda does not simply teleport the object.
-
-The object is physically grasped by the robot fingers and transported to the final placement location.
-
----
 
 ## Dataset Export
 
