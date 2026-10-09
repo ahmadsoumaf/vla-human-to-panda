@@ -218,7 +218,6 @@ First verify the frozen pipeline:
 
 ```bash
 python3 tools/freeze_manifest.py --check
-```bash
 ./run_record_episodes.sh
 ```
 
