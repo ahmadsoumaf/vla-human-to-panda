@@ -161,9 +161,19 @@ cd vla-human-to-panda
 
 ### 3. Build the Isaac Sim scene
 
+If Isaac Sim is installed at `~/isaac-sim`, run:
+
 ```bash
 ./run_scene.sh
 ```
+
+For a different installation path, run:
+
+```bash
+ISAAC_SIM_DIR="$HOME/IsaacSim-5.1" ./run_scene.sh
+```
+
+Replace `$HOME/IsaacSim-5.1` with your Isaac Sim installation directory.
 
 ---
 
