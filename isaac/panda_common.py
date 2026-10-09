@@ -22,7 +22,7 @@ from isaacsim.core.utils.stage import is_stage_loading, open_stage
 from isaacsim.core.utils.types import ArticulationAction
 from isaacsim.robot.manipulators.examples.franka import Franka, KinematicsSolver
 from pxr import Gf, Usd, UsdGeom
-
+import time
 from task_geometry import EMPTY_GRIP_THRESHOLD, GRIPPER_CLOSED, GRIPPER_OPEN, SceneAnchors
 
 PANDA_ROOT = "/World/Panda"
@@ -390,9 +390,18 @@ class PandaTask:
         return used_position_only
 
     def step(self, gripper_command: float) -> tuple[np.ndarray, np.ndarray]:
-        """Step physics once, log, and keep an assisted (attached) object glued to the TCP."""
+        """Step physics once, log, and keep an assisted object glued to the TCP."""
         self.command_gripper(gripper_command)
+        step_started = time.perf_counter()
         self.world.step(render=self.cfg.render)
+
+        if self.cfg.render:
+            remaining = self.world.get_physics_dt() - (
+                time.perf_counter() - step_started
+            )
+            if remaining > 0:
+                time.sleep(remaining)
+
         ee_position, ee_orientation = self.ee_pose()
         if self.attached_root_offset is not None and self.attached_orientation is not None:
             self.fls.set_world_pose(position=ee_position + self.attached_root_offset, orientation=self.attached_orientation)

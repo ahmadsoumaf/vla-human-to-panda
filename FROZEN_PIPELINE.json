@@ -1,5 +1,5 @@
 {
-  "frozen_on": "2026-10-08",
+  "frozen_on": "2026-10-09",
   "note": "Perception/retargeting/controller frozen for VLA dataset export; process new videos with these exact files and thresholds.",
   "accepted_demos": [
     "data/real/processed/demo_001_best.npz",
@@ -14,7 +14,7 @@
     "perception/default_config.json": "407f8575f438e610beb457dc174b7fd2b76481f77f9d868ce62eab10936cc282",
     "retargeting/human_to_panda.py": "323b60ba4abff28abab34b7d9031775201488e67a0860c773e73d390c87072fb",
     "retargeting/replay_human_demo.py": "4d28be1db8b4918925946519ba40158488073c0a5860edf748224f44e9a79083",
-    "isaac/panda_common.py": "2d37b13b1db7217616439e9702ce13691f2500c01d3e8c89010eab0dc6e9d8b9",
+    "isaac/panda_common.py": "805158a216f7ea95902feedb900be4e3aecccbed8fc6bc7ad897cc3e84fc4ff7",
     "isaac/task_geometry.py": "ab4679a46282672f068cc7fb57d6de98009ae5db033f628a1ffb35c6f4cea021",
     "isaac/fls_pick_place_scene.anchors.json": "c874ff4bcab15ae6c297504205d1ff9c4791a043a039138f3c06d3cbe5fcff6d",
     "assets/models/hand_landmarker.task": "fbc2a30080c3c557093b5ddfc334698132eb341044ccee322ccf8bcf3607cde1"
