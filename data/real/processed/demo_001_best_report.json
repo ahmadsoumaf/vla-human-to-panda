@@ -1,0 +1,24 @@
+{
+  "demo": "data/real/processed/demo_001_best.npz",
+  "target_mode": "release",
+  "grasp_t": 1.4666666666666666,
+  "release_t": 4.033333333333333,
+  "pick_observed": true,
+  "release_observed": true,
+  "approach_observed": false,
+  "demonstrated_target_px": [
+    714.768,
+    241.7737686139748
+  ],
+  "grasp_correction_cm": 0.49,
+  "release_correction_cm": 2.99,
+  "replay_success": true,
+  "final_target_error_mm": 5.5,
+  "good_demonstration": true,
+  "quality_issues": [],
+  "warnings": [
+    "12 carry frames follow the object (hand out of view)",
+    "approach not observed (hand entered view already grasping); robot goes straight to the object"
+  ],
+  "vla_dataset_ok": true
+}

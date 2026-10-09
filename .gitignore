@@ -1,0 +1,16 @@
+.venv-perception/
+.venv-lerobot/
+__pycache__/
+.pytest_cache/
+*.pyc
+*.log
+*.tmp
+*.bak
+*~
+
+data/real/debug/
+data/sim/
+data/lerobot_raw/
+
+outputs/
+checkpoints/

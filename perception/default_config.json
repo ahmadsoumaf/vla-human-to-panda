@@ -1,0 +1,50 @@
+{
+  "object": {
+    "hsv_lower": [
+      95,
+      120,
+      50
+    ],
+    "hsv_upper": [
+      130,
+      255,
+      255
+    ],
+    "kernel_size": 5,
+    "open_iterations": 1,
+    "close_iterations": 2,
+    "min_area_fraction": 5e-05,
+    "max_area_fraction": 0.05,
+    "min_solidity": 0.6
+  },
+  "target": {
+    "min_area_fraction": 0.002,
+    "max_area_fraction": 0.25,
+    "max_aspect_ratio": 2.0,
+    "min_interior_brightness": 150.0,
+    "detection_frames": 15,
+    "min_detections": 5
+  },
+  "grasp": {
+    "close_ratio": 0.35,
+    "open_ratio": 0.55,
+    "min_hold_frames": 3,
+    "release_on_hand_loss": true,
+    "hand_loss_min_absent_s": 0.4,
+    "hand_loss_max_object_extent_fraction": 0.03,
+    "hand_loss_max_object_step_fraction": 0.004
+  },
+  "validation": {
+    "max_fill_gap_s": 0.3,
+    "min_pre_grasp_object_frames": 5,
+    "max_carry_gap_s": 0.6,
+    "release_recover_s": 1.0
+  },
+  "release_target": {
+    "settle_s": 0.2,
+    "search_s": 3.0,
+    "max_step_fraction": 0.004,
+    "min_stable_frames": 8,
+    "max_spread_fraction": 0.015
+  }
+}

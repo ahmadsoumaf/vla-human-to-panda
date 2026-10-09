@@ -1,0 +1,4 @@
+# Perception environment (created by ./setup_perception_env.sh in .venv-perception)
+mediapipe>=0.10.14
+opencv-python
+numpy

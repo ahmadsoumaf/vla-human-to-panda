@@ -1,0 +1,23 @@
+{
+  "demo": "data/real/processed/demo_004.npz",
+  "target_mode": "release",
+  "grasp_t": 0.4666666666666667,
+  "release_t": 2.6,
+  "pick_observed": true,
+  "release_observed": true,
+  "approach_observed": false,
+  "demonstrated_target_px": [
+    834.9541156732369,
+    293.62835249042143
+  ],
+  "grasp_correction_cm": 0.23,
+  "release_correction_cm": 5.03,
+  "replay_success": true,
+  "final_target_error_mm": 5.7,
+  "good_demonstration": true,
+  "quality_issues": [],
+  "warnings": [
+    "approach not observed (hand entered view already grasping); robot goes straight to the object"
+  ],
+  "vla_dataset_ok": true
+}

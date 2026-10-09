@@ -1,0 +1,25 @@
+{
+  "demo": "data/real/processed/demo_002.npz",
+  "target_mode": "release",
+  "grasp_t": 2.033333333333333,
+  "release_t": 4.133333333333334,
+  "pick_observed": true,
+  "release_observed": true,
+  "approach_observed": true,
+  "demonstrated_target_px": [
+    701.5848580441641,
+    239.0276035131744
+  ],
+  "grasp_correction_cm": 1.03,
+  "release_correction_cm": 6.37,
+  "replay_success": true,
+  "final_target_error_mm": 6.0,
+  "good_demonstration": true,
+  "quality_issues": [],
+  "warnings": [
+    "2 grasp intervals found; using the longest (2.03-4.13 s)",
+    "23 carry frames follow the object (hand out of view)",
+    "approach copied from 1.80 s; earlier hand motion is separated by a tracking gap > 0.6 s and is not copied"
+  ],
+  "vla_dataset_ok": true
+}

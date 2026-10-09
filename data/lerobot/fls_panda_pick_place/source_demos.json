@@ -1,0 +1,12 @@
+{
+  "episodes": [
+    "demo_001_best",
+    "demo_002",
+    "demo_004"
+  ],
+  "recordings": [
+    "data/lerobot_raw/demo_001_best",
+    "data/lerobot_raw/demo_002",
+    "data/lerobot_raw/demo_004"
+  ]
+}
