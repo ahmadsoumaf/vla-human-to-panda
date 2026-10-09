@@ -1,93 +1,528 @@
-# Phone video → Panda in Isaac Sim → SmolVLA
+# Real-to-Sim VLA Manipulation with Human Demonstrations
 
-Real human demonstrations recorded with a phone drive a Franka Panda in Isaac Sim 5.1: the human
-pick-and-place of a blue FLS triangle is tracked in 2D, retargeted onto the Panda, replayed with a
-physical grasp, recorded as robot episodes and exported as a LeRobot dataset for SmolVLA.
+![Python](https://img.shields.io/badge/Python-3.x-blue?logo=python&logoColor=white)
+![NVIDIA Isaac Sim](https://img.shields.io/badge/NVIDIA-Isaac%20Sim-76B900?logo=nvidia&logoColor=white)
+![PyTorch](https://img.shields.io/badge/PyTorch-CUDA-ee4c2c?logo=pytorch&logoColor=white)
+![OpenCV](https://img.shields.io/badge/OpenCV-Perception-5C3EE8?logo=opencv&logoColor=white)
+![LeRobot](https://img.shields.io/badge/Hugging%20Face-LeRobot-FFD21E)
+![SmolVLA](https://img.shields.io/badge/VLA-SmolVLA-orange)
+![OpenUSD](https://img.shields.io/badge/OpenUSD-Simulation-lightgrey)
+![Bash](https://img.shields.io/badge/Bash-Scripts-4EAA25?logo=gnubash&logoColor=white)
 
+A real-to-simulation robot learning pipeline that converts simple phone-recorded human manipulation demonstrations into Panda robot demonstrations in NVIDIA Isaac Sim and exports them as a LeRobot dataset for Vision-Language-Action training.
+
+The project explores how a small amount of real human demonstration data can be transferred to a different robotic embodiment using perception, task-phase detection, trajectory retargeting, simulation and VLA-compatible dataset generation.
+
+---
+
+## Project Goal
+
+The objective is to use real manipulation data recorded with a phone to drive a robotic manipulator in simulation.
+
+The task used in this project is:
+
+> **Pick up the blue triangular block and place it on the target.**
+
+The complete pipeline is:
+
+```text
+Phone Video
+    ↓
+Hand + Object Perception
+    ↓
+Grasp / Carry / Release Detection
+    ↓
+Demo Quality Validation
+    ↓
+Human-to-Panda Retargeting
+    ↓
+NVIDIA Isaac Sim
+    ↓
+Physical Panda Grasp + Placement
+    ↓
+Robot Camera + State + Action Recording
+    ↓
+LeRobot Dataset
+    ↓
+SmolVLA Fine-Tuning
 ```
-phone video ─► perception (MediaPipe hand + HSV block + release target) ─► data/real/processed/<demo>.npz
-           ─► retargeting (image→table mapping, phase-based Z, gripper)   ─► <demo>_panda_plan.npz + _report.json
-           ─► Isaac replay with the Panda (physical grasp, quality gate)   ─► vla_dataset_ok
-           ─► recorded episodes (camera + joint state + action)           ─► data/lerobot_raw/
-           ─► LeRobot v3.0 dataset                                         ─► data/lerobot/fls_panda_pick_place
-           ─► SmolVLA fine-tuning (lerobot/smolvla_base)                   ─► outputs/train/<run>
+
+---
+
+## Main Contribution
+
+Rather than directly teleoperating the robot or manually specifying trajectories, the project starts from **human manipulation recorded using a standard phone camera**.
+
+The pipeline automatically:
+
+1. detects the human hand and manipulated object;
+2. identifies the manipulation phases;
+3. rejects demonstrations with unreliable grasp or release perception;
+4. converts the accepted human motion into a Panda-compatible trajectory;
+5. executes a physical grasp and placement inside Isaac Sim;
+6. records robot observations, states and actions;
+7. exports the resulting demonstrations in LeRobot format for VLA training.
+
+This allows a small number of real human demonstrations to be transformed into structured robot-learning data.
+
+---
+
+## Current Results
+
+Three human demonstrations passed the complete quality-validation pipeline.
+
+| Demo | Pick observed | Release observed | Panda placement error | VLA dataset |
+|---|---:|---:|---:|---:|
+| `demo_001_best` | Yes | Yes | 5.5 mm | Accepted |
+| `demo_002` | Yes | Yes | 6.0 mm | Accepted |
+| `demo_004` | Yes | Yes | 5.7 mm | Accepted |
+
+Demonstrations with inaccurate grasp detection were rejected even when the Panda replay happened to reach the target.
+
+This keeps **robot replay success separate from demonstration quality**.
+
+The final LeRobot dataset currently contains:
+
+```text
+Episodes:       3
+Frames:         1,257
+Frame rate:     30 FPS
+Camera:         640 × 360 RGB
+Robot state:    8 dimensions
+Action:         8 dimensions
+Task:
+"Pick up the blue triangle and place it on the target."
 ```
 
-## Requirements
+The 8-D state contains:
 
-- Isaac Sim 5.1 at `~/isaac-sim` (override with `ISAAC_SIM_DIR`). The Panda asset
-  (`assets/fls/panda_instanceable.usd`) loads NVIDIA's Franka from the Isaac 5.1 cloud, so the
-  first run needs internet.
-- Perception env: `./setup_perception_env.sh` (creates `.venv-perception`, MediaPipe + OpenCV,
-  downloads `assets/models/hand_landmarker.task`).
-- LeRobot env (dataset + SmolVLA):
-  `uv venv .venv-lerobot --python 3.12 && uv pip install --python .venv-lerobot/bin/python "lerobot[dataset,smolvla]"`
-- Tests: `python3 -m pytest tests/ -q` (system Python with numpy, opencv-python, pytest).
+```text
+7 Panda arm joints
++
+gripper opening
+```
 
-## Reproduce
+The 8-D action contains:
+
+```text
+7 commanded joint targets
++
+gripper command
+```
+
+---
+
+## Perception
+
+The phone-video processing pipeline uses:
+
+- MediaPipe hand landmarks
+- OpenCV
+- HSV object segmentation
+- phase-aware validation
+- grasp/release detection
+- post-release target estimation
+
+The manipulation is separated into:
+
+```text
+Approach
+   ↓
+Grasp
+   ↓
+Carry
+   ↓
+Release
+   ↓
+Post-release
+```
+
+Validation is also phase-aware.
+
+For example:
+
+- the hand must be visible at the grasp;
+- the object must be observed before the grasp;
+- either the hand or object must remain tracked during carry;
+- the object must reappear after release;
+- enough stable object frames must exist after placement.
+
+A demonstration can therefore replay successfully but still be rejected from the training dataset if its human manipulation was not reliably observed.
+
+---
+
+## Human-to-Panda Retargeting
+
+Human motion is converted into Panda motion using the task geometry of the simulated table.
+
+The retargeting stage creates a sequence containing:
+
+```text
+Approach
+Descend to grasp
+Close gripper
+Lift
+Transport
+Descend to target
+Open gripper
+Lift after placement
+```
+
+The robot then executes this trajectory inside NVIDIA Isaac Sim.
+
+The Panda controller handles:
+
+- inverse kinematics;
+- joint commands;
+- gripper commands;
+- grasp validation;
+- placement success checking;
+- trajectory execution logging.
+
+---
+
+## Simulation
+
+The simulation uses:
+
+- NVIDIA Isaac Sim
+- Franka Emika Panda
+- custom triangular manipulation object
+- table scene
+- RGB camera
+- physical grasping
+- collision and friction
+
+The Panda does not simply teleport the object.
+
+The object is physically grasped by the robot fingers and transported to the final placement location.
+
+---
+
+## Dataset Export
+
+Accepted demonstrations are replayed in Isaac Sim while recording:
+
+```text
+observation.images.front
+observation.state
+action
+task
+```
+
+They are then exported into LeRobot v3.0 format.
+
+The final dataset is located at:
+
+```text
+data/lerobot/fls_panda_pick_place/
+```
+
+---
+
+## Repository Structure
+
+```text
+vla_challenge/
+│
+├── README.md
+├── FROZEN_PIPELINE.json
+│
+├── perception/
+│   ├── process_demo.py
+│   ├── hand_tracker.py
+│   ├── object_tracker.py
+│   ├── target_tracker.py
+│   ├── synthetic_demo.py
+│   └── default_config.json
+│
+├── retargeting/
+│   ├── human_to_panda.py
+│   └── replay_human_demo.py
+│
+├── isaac/
+│   ├── build_fls_pick_place_scene.py
+│   ├── panda_common.py
+│   ├── task_geometry.py
+│   ├── fls_pick_place_scene.usd
+│   └── fls_pick_place_scene.anchors.json
+│
+├── export/
+│   ├── record_sim_episodes.py
+│   └── build_lerobot_dataset.py
+│
+├── assets/
+│   ├── fls/
+│   └── models/
+│
+├── data/
+│   ├── real/
+│   │   ├── videos/
+│   │   └── processed/
+│   └── lerobot/
+│       └── fls_panda_pick_place/
+│
+├── tests/
+│   ├── test_phase_validation.py
+│   └── test_retargeting.py
+│
+├── tools/
+│   └── freeze_manifest.py
+│
+├── setup_perception_env.sh
+├── run_scene.sh
+├── run_process_demo.sh
+├── run_human_replay.sh
+├── run_record_episodes.sh
+├── run_build_lerobot_dataset.sh
+└── run_train_smolvla.sh
+```
+
+---
+
+## Setup
+
+### 1. Clone the repository
 
 ```bash
-./run_scene.sh --headless --build-only            # (re)build isaac/fls_pick_place_scene.usd + anchors
-
-# 1. perception, for each accepted video (release mode: the block's resting place is the target)
-./run_process_demo.sh data/real/videos/demo_001_best.mp4 --target-mode release
-./run_process_demo.sh data/real/videos/demo_002.mp4      --target-mode release
-./run_process_demo.sh data/real/videos/demo_004.mp4      --target-mode release
-
-# 2. retarget + replay with the Panda; writes <demo>_panda_plan.npz and <demo>_report.json
-for d in demo_001_best demo_002 demo_004; do ./run_human_replay.sh data/real/processed/$d.npz --headless; done
-
-# 3. record robot episodes and build the LeRobot dataset
-./run_record_episodes.sh                            # Isaac, headless (--gui to watch)
-./run_build_lerobot_dataset.sh --overwrite
-
-# 4. fine-tune SmolVLA
-./run_train_smolvla.sh                              # 500-step smoke test
-STEPS=3000 NAME=smolvla_fls BATCH=8 ./run_train_smolvla.sh
+git clone https://github.com/YOUR_USERNAME/vla-human-to-panda.git
+cd vla-human-to-panda
 ```
 
-## Accepted demonstrations
+### 2. Set up the perception environment
 
-Only demos whose replay succeeds **and** whose demonstration is correctly observed are used
-(`vla_dataset_ok` in `data/real/processed/<demo>_report.json`):
+```bash
+./setup_perception_env.sh
+```
 
-| demo | pick observed | grasp correction | replay target error |
-|---|---|---|---|
-| demo_001_best | yes | 0.5 cm | 5.5 mm |
-| demo_002 | yes | 1.0 cm | 6.0 mm |
-| demo_004 | yes | 0.2 cm | 5.7 mm |
+### 3. Build the Isaac Sim scene
 
-Other recordings were rejected by phase-aware validation (grasp never ends / pick not observed /
-too short after release) and are not kept.
+```bash
+./run_scene.sh
+```
 
-## Frozen pipeline
+---
 
-`FROZEN_PIPELINE.json` holds SHA-256 hashes of the perception, retargeting and controller code,
-config and hand model. `python3 tools/freeze_manifest.py --check` fails if any of them changed
-(`run_record_episodes.sh` runs it first). New videos must be processed with exactly these files and
-thresholds; thresholds are never tuned per demo.
+## Processing a Human Demonstration
 
-## Layout
+Process a phone video:
 
-| path | purpose |
-|---|---|
-| `perception/` | hand, block and target tracking, phase-aware validation (`default_config.json`) |
-| `retargeting/` | `human_to_panda.py` (pure numpy retargeting + quality), `replay_human_demo.py` (Isaac) |
-| `isaac/` | scene builder, scene USD + anchors, `panda_common.py` (Panda IK/gripper controller) |
-| `export/` | episode recorder (Isaac) and LeRobot dataset builder |
-| `tools/freeze_manifest.py` | freeze manifest / check |
-| `tests/` | retargeting and phase-validation regression tests |
+```bash
+./run_process_demo.sh data/real/videos/demo_001_best.mp4
+```
 
-## Known limitations
+This performs:
 
-- 2D perception from an oblique phone camera: no depth; lift and depth are not separable
-  (`--camera-view oblique` keeps progress along the object→target line).
-- Three accepted episodes, all with the same block/target layout in simulation, and the target is
-  not visible in the images: a SmolVLA trained on this can only learn one fixed motion.
-- No closed-loop SmolVLA evaluation in Isaac yet.
+```text
+video
+→ hand tracking
+→ object tracking
+→ phase detection
+→ grasp/release detection
+→ validation
+→ processed demonstration
+```
 
-## Housekeeping
+---
 
-Keep source, configs, accepted data, the final dataset, final checkpoints and evaluation results.
-Debug videos (`data/real/debug/`), replay logs (`data/sim/`), smoke-test checkpoints and caches are
-regenerated by the commands above and should be deleted once no longer needed.
+## Replay Human Motion with Panda
+
+After processing:
+
+```bash
+./run_human_replay.sh demo_001_best
+```
+
+The system retargets the accepted human trajectory and executes it with the Panda.
+
+The resulting report records whether the demonstration is suitable for the VLA dataset.
+
+---
+
+## Record Accepted Robot Episodes
+
+```bash
+./run_record_episodes.sh
+```
+
+This records:
+
+- front-camera RGB observations;
+- robot state;
+- robot actions;
+- episode metadata.
+
+Only accepted demonstrations are used.
+
+---
+
+## Build the LeRobot Dataset
+
+```bash
+./run_build_lerobot_dataset.sh --overwrite
+```
+
+Example output:
+
+```text
+3 episodes
+1257 frames
+30 fps
+image: (3, 360, 640)
+state: (8,)
+action: (8,)
+```
+
+---
+
+## SmolVLA
+
+The exported dataset can be used for SmolVLA fine-tuning through LeRobot.
+
+Training entry point:
+
+```bash
+./run_train_smolvla.sh
+```
+
+The current three-episode dataset is primarily intended to validate the complete:
+
+```text
+real demonstration
+→ robot demonstration
+→ VLA dataset
+→ VLA training
+```
+
+pipeline.
+
+A larger and more spatially diverse dataset is required for strong generalisation.
+
+---
+
+## Pipeline Freeze
+
+To ensure that dataset generation remains reproducible, the final perception, retargeting and controller pipeline is fingerprinted using SHA-256 hashes.
+
+Check that the frozen pipeline has not changed:
+
+```bash
+python3 tools/freeze_manifest.py --check
+```
+
+If one of the frozen files changes, the check fails.
+
+---
+
+## Tests
+
+Run the validation tests with:
+
+```bash
+python3 -m pytest tests/ -q
+```
+
+The tests cover cases including:
+
+- missing grasp observations;
+- carry tracking gaps;
+- invalid releases;
+- post-release stability;
+- demonstrations with incorrectly detected picks;
+- accepted demonstration quality.
+
+---
+
+## Current Limitations
+
+The present dataset is intentionally small.
+
+Current limitations include:
+
+- only three accepted human demonstrations;
+- limited variation in object and target positions;
+- 2D phone-video perception;
+- a relatively small object in the simulated camera view;
+- limited viewpoint diversity;
+- the current dataset is better suited to pipeline validation than robust VLA generalisation.
+
+These limitations provide clear directions for future work.
+
+---
+
+## Future Work
+
+Planned extensions include:
+
+- closed-loop SmolVLA control in Isaac Sim;
+- randomised block positions;
+- randomised target positions;
+- more real human demonstrations;
+- simulation-based demonstration augmentation;
+- evaluation on unseen layouts;
+- success-rate comparison between small-data and augmented-data policies;
+- improved camera viewpoints;
+- stronger visual target representation.
+
+A longer-term pipeline could become:
+
+```text
+Small Real Dataset
+       ↓
+Human-to-Robot Retargeting
+       ↓
+Simulation Augmentation
+       ↓
+VLA Fine-Tuning
+       ↓
+Closed-Loop Robot Policy
+       ↓
+Evaluation on Unseen Tasks
+```
+
+---
+
+## Technologies
+
+**Programming**
+
+- Python
+- Bash
+
+**Perception**
+
+- OpenCV
+- MediaPipe
+
+**Robotics & Simulation**
+
+- NVIDIA Isaac Sim
+- OpenUSD
+- Franka Panda
+- inverse kinematics
+
+**Robot Learning**
+
+- Hugging Face LeRobot
+- SmolVLA
+- PyTorch
+- CUDA
+
+**Data**
+
+- NumPy
+- LeRobot dataset format
+- RGB robot-camera observations
+- joint-state/action trajectories
+
+---
+
+## Challenge Summary
+
+This project demonstrates how a small amount of applicant-recorded real-world manipulation data can be transformed into robot-learning demonstrations for a different embodiment.
+
+The central idea is:
+
+> **record a human manipulation with a phone, understand the manipulation, retarget it to a simulated robot, and convert the resulting robot behaviour into data suitable for Vision-Language-Action learning.**
+
+The current system successfully completes the complete real-to-sim and dataset-generation pipeline, with closed-loop VLA evaluation as the next stage.
