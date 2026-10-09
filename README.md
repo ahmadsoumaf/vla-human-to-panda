@@ -235,6 +235,8 @@ Only accepted demonstrations are used.
 ## Build the LeRobot Dataset
 
 ```bash
+cd ~/vla-human-to-panda
+uv venv .venv-lerobot --python 3.12
 ./run_build_lerobot_dataset.sh --overwrite
 ```
 
