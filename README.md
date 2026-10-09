@@ -1,6 +1,6 @@
 # Real-to-Sim VLA Manipulation with Human Demonstrations
 
-![Python](https://img.shields.io/badge/Python-3.x-blue?logo=python&logoColor=white)
+
 ![NVIDIA Isaac Sim](https://img.shields.io/badge/NVIDIA-Isaac%20Sim-76B900?logo=nvidia&logoColor=white)
 ![OpenCV](https://img.shields.io/badge/OpenCV-Perception-5C3EE8?logo=opencv&logoColor=white)
 ![SmolVLA](https://img.shields.io/badge/VLA-SmolVLA-orange)
